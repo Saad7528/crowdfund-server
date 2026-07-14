@@ -18,6 +18,8 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+// verifyAdmin checks if the decoded user claims role is set to 'Admin'.
+// Access is rejected if claims mismatch.
 const verifyAdmin = (req, res, next) => {
   const role = req.decoded?.role;
   if (role !== 'Admin') {
