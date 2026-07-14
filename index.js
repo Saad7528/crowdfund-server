@@ -29,12 +29,12 @@ const client = new MongoClient(uri, {
 
 let db, usersCollection, campaignsCollection, contributionsCollection, withdrawalsCollection, paymentsCollection, notificationsCollection, reportsCollection;
 
-async function run() {
-  try {
-    // Connect to MongoDB
+let isConnected = false;
+let isSeeded = false;
+
+async function connectDb() {
+  if (!isConnected) {
     await client.connect();
-    console.log("Connected successfully to MongoDB!");
-    
     db = client.db("crowdfunding");
     usersCollection = db.collection("users");
     campaignsCollection = db.collection("campaigns");
@@ -43,45 +43,62 @@ async function run() {
     paymentsCollection = db.collection("payments");
     notificationsCollection = db.collection("notifications");
     reportsCollection = db.collection("reports");
+    isConnected = true;
+    console.log("Connected successfully to MongoDB!");
 
-    // Seed default admin if not exists. This ensures that the administrator account
-    // is pre-registered on system launch for testing role-based dashboard operations.
-    const adminEmail = 'admin@crowdfund.com';
-    const existingAdmin = await usersCollection.findOne({ email: adminEmail });
-    if (!existingAdmin) {
-      const hashedPassword = await bcrypt.hash('adminPassword', 10);
-      const adminUser = {
-        name: 'Site Administrator',
-        email: adminEmail,
-        photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
-        role: 'Admin',
-        credits: 0,
-        raised_credits: 0,
-        password: hashedPassword,
-        createdAt: new Date()
-      };
-      await usersCollection.insertOne(adminUser);
-      console.log('Seeded default admin: admin@crowdfund.com / adminPassword');
-    }
+    if (!isSeeded) {
+      // Seed default admin if not exists
+      const adminEmail = 'admin@crowdfund.com';
+      const existingAdmin = await usersCollection.findOne({ email: adminEmail });
+      if (!existingAdmin) {
+        const hashedPassword = await bcrypt.hash('adminPassword', 10);
+        const adminUser = {
+          name: 'Site Administrator',
+          email: adminEmail,
+          photoURL: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
+          role: 'Admin',
+          credits: 0,
+          raised_credits: 0,
+          password: hashedPassword,
+          createdAt: new Date()
+        };
+        await usersCollection.insertOne(adminUser);
+        console.log('Seeded default admin');
+      }
 
-    // Seed default creator if not exists
-    const creatorEmail = 'creator@crowdfund.com';
-    const existingCreator = await usersCollection.findOne({ email: creatorEmail });
-    if (!existingCreator) {
-      const hashedPassword = await bcrypt.hash('creatorPassword', 10);
-      const creatorUser = {
-        name: 'Jane Doe (Creator)',
-        email: creatorEmail,
-        photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
-        role: 'Creator',
-        credits: 20,
-        raised_credits: 0,
-        password: hashedPassword,
-        createdAt: new Date()
-      };
-      await usersCollection.insertOne(creatorUser);
-      console.log('Seeded default creator: creator@crowdfund.com / creatorPassword');
+      // Seed default creator if not exists
+      const creatorEmail = 'creator@crowdfund.com';
+      const existingCreator = await usersCollection.findOne({ email: creatorEmail });
+      if (!existingCreator) {
+        const hashedPassword = await bcrypt.hash('creatorPassword', 10);
+        const creatorUser = {
+          name: 'Jane Doe (Creator)',
+          email: creatorEmail,
+          photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
+          role: 'Creator',
+          credits: 20,
+          raised_credits: 0,
+          password: hashedPassword,
+          createdAt: new Date()
+        };
+        await usersCollection.insertOne(creatorUser);
+        console.log('Seeded default creator');
+      }
+      isSeeded = true;
     }
+  }
+}
+
+// Middleware to ensure DB is connected before handling any requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDb();
+    next();
+  } catch (error) {
+    console.error("Database connection failure:", error);
+    res.status(500).send({ message: "Database connection failed", error: error.message });
+  }
+});
     // --- JWT & Auth API ---
     
     // POST /jwt generates a JWT token for the user. It looks up the email in the database 
@@ -857,11 +874,7 @@ async function run() {
       res.status(400).send({ message: 'Invalid role' });
     });
 
-  } catch (err) {
-    console.error("Failed to connect or set up database:", err);
-  }
-}
-run().catch(console.dir);
+// DB initialization and routes registration complete.
 
 // Root Endpoint
 app.get('/', (req, res) => {
