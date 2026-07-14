@@ -64,6 +64,24 @@ async function run() {
       console.log('Seeded default admin: admin@crowdfund.com / adminPassword');
     }
 
+    // Seed default creator if not exists
+    const creatorEmail = 'creator@crowdfund.com';
+    const existingCreator = await usersCollection.findOne({ email: creatorEmail });
+    if (!existingCreator) {
+      const hashedPassword = await bcrypt.hash('creatorPassword', 10);
+      const creatorUser = {
+        name: 'Jane Doe (Creator)',
+        email: creatorEmail,
+        photoURL: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200',
+        role: 'Creator',
+        credits: 20,
+        raised_credits: 0,
+        password: hashedPassword,
+        createdAt: new Date()
+      };
+      await usersCollection.insertOne(creatorUser);
+      console.log('Seeded default creator: creator@crowdfund.com / creatorPassword');
+    }
     // --- JWT & Auth API ---
     
     // POST /jwt generates a JWT token for the user. It looks up the email in the database 
