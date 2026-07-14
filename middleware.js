@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+// verifyToken is the main JWT authorization guard. It decodes the bearer token 
+// from the Authorization header and verifies it against the server secret key.
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
