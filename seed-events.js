@@ -1,7 +1,11 @@
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
-const uri = process.env.MONGO_URI || "mongodb+srv://crowdfund:D2tBfpXBmqzEzhFI@sadasaad.pszei0q.mongodb.net/crowdfunding?retryWrites=true&w=majority&appName=SadaSaad";
+const uri = process.env.MONGO_URI;
+if (!uri) {
+  console.error("Error: MONGO_URI environment variable is missing in .env file!");
+  process.exit(1);
+}
 
 const eventsData = [
   {

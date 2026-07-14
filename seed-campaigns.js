@@ -1,8 +1,11 @@
 const { MongoClient } = require('mongodb');
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
-const uri = process.env.MONGO_URI || "mongodb+srv://crowdfund:D2tBfpXBmqzEzhFI@sadasaad.pszei0q.mongodb.net/crowdfunding?retryWrites=true&w=majority&appName=SadaSaad";
+const uri = process.env.MONGO_URI;
+if (!uri) {
+  console.error("Error: MONGO_URI environment variable is missing in .env file!");
+  process.exit(1);
+}
 
 const demoCampaigns = [
   {
@@ -49,6 +52,66 @@ const demoCampaigns = [
     amount_raised: 820,
     status: "approved",
     createdAt: new Date()
+  },
+  {
+    title: "BioGrow: Intelligent Indoor Garden",
+    story: "BioGrow is an automatic smart planter with LED growth lamps and self-watering sensors. Grow fresh herbs, vegetables, and flowers inside your apartment year-round with zero effort.",
+    category: "Technology",
+    funding_goal: 4000,
+    minimum_contribution: 20,
+    deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
+    reward_info: "One BioGrow smart planter kit and starter organic seed packs.",
+    image_url: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=800",
+    creator_email: "creator@crowdfund.com",
+    creator_name: "GreenTech Innovations",
+    amount_raised: 1500,
+    status: "approved",
+    createdAt: new Date()
+  },
+  {
+    title: "Beyond the Horizon: Photography Book",
+    story: "A high-quality coffee table book capturing breathtaking landscapes and stories from the most remote villages in Bangladesh. Your pledge helps publish and print the first run.",
+    category: "Art",
+    funding_goal: 2000,
+    minimum_contribution: 30,
+    deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+    reward_info: "Signed hardcover copy of the book and high-res digital prints.",
+    image_url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=800",
+    creator_email: "creator@crowdfund.com",
+    creator_name: "Nebula Cinematic",
+    amount_raised: 900,
+    status: "approved",
+    createdAt: new Date()
+  },
+  {
+    title: "Clean Rivers Clean Oceans Project",
+    story: "We are organizing massive weekend cleanup events to remove plastics and waste from local rivers. Funding goes towards trash booms, recycling bins, and volunteer tools.",
+    category: "Community",
+    funding_goal: 6000,
+    minimum_contribution: 5,
+    deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+    reward_info: "Official cleanup volunteer badge and project report inclusion.",
+    image_url: "https://images.unsplash.com/photo-1618477388954-7852f32655ec?auto=format&fit=crop&q=80&w=800",
+    creator_email: "creator@crowdfund.com",
+    creator_name: "Community Greens",
+    amount_raised: 3200,
+    status: "approved",
+    createdAt: new Date()
+  },
+  {
+    title: "LearnCode: Coding for Kids",
+    story: "A gamified web platform that teaches coding fundamentals to kids through interactive puzzles and storytelling. Support us to design new modules and levels.",
+    category: "Technology",
+    funding_goal: 4500,
+    minimum_contribution: 15,
+    deadline: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000),
+    reward_info: "Early-access code for 1 year premium platform subscription.",
+    image_url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800",
+    creator_email: "creator@crowdfund.com",
+    creator_name: "GreenTech Innovations",
+    amount_raised: 1800,
+    status: "approved",
+    createdAt: new Date()
   }
 ];
 
@@ -61,7 +124,7 @@ async function seed() {
     const db = client.db("crowdfunding");
     const campaignsCollection = db.collection("campaigns");
     
-    // Clear existing campaigns to prevent duplicates
+    // Clear existing campaigns
     await campaignsCollection.deleteMany({});
     
     // Insert new campaigns
