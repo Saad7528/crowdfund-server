@@ -115,7 +115,8 @@ async function run() {
       res.send({ exists: !!user });
     });
 
-    // Register User
+    // Register User. Saves new users, hashes password with bcrypt, and applies starting
+    // credit baseline rules: 50 credits for Supporters, 20 credits for Creators.
     app.post('/users', async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
