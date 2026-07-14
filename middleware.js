@@ -28,6 +28,8 @@ const verifyAdmin = (req, res, next) => {
   next();
 };
 
+// verifyCreator checks if the user role is 'Creator' or 'Admin' (as superuser).
+// Required for campaign operations.
 const verifyCreator = (req, res, next) => {
   const role = req.decoded?.role;
   if (role !== 'Creator' && role !== 'Admin') {
