@@ -85,7 +85,8 @@ async function run() {
       res.send({ token, role: user.role });
     });
 
-    // Login route (Email/Password)
+    // Login route (Email/Password). Validates credentials, compares hashed passwords
+    // using bcryptjs, and responds with a fresh JWT token and user info profile.
     app.post('/login', async (req, res) => {
       const { email, password } = req.body;
       if (!email || !password) {
