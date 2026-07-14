@@ -66,6 +66,8 @@ async function run() {
 
     // --- JWT & Auth API ---
     
+    // POST /jwt generates a JWT token for the user. It looks up the email in the database 
+    // to sign the token with the verified role from the DB, ensuring secure authorization.
     app.post('/jwt', async (req, res) => {
       const { email } = req.body;
       if (!email) {
