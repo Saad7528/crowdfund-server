@@ -38,6 +38,8 @@ const verifyCreator = (req, res, next) => {
   next();
 };
 
+// verifySupporter checks if user role is 'Supporter' or 'Admin' (as superuser).
+// Required for pledging, reports, and payments.
 const verifySupporter = (req, res, next) => {
   const role = req.decoded?.role;
   if (role !== 'Supporter' && role !== 'Admin') {
