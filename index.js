@@ -44,7 +44,8 @@ async function run() {
     notificationsCollection = db.collection("notifications");
     reportsCollection = db.collection("reports");
 
-    // Seed default admin if not exists
+    // Seed default admin if not exists. This ensures that the administrator account
+    // is pre-registered on system launch for testing role-based dashboard operations.
     const adminEmail = 'admin@crowdfund.com';
     const existingAdmin = await usersCollection.findOne({ email: adminEmail });
     if (!existingAdmin) {
