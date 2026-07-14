@@ -868,7 +868,11 @@ app.get('/', (req, res) => {
   res.send('Crowdfunding Platform Server is running...');
 });
 
-// Start Server
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+// Start Server (only if not running on Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
+
+module.exports = app;
